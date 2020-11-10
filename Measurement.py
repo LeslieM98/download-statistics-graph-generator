@@ -1,4 +1,5 @@
 import csv
+import os
 
 def class Measurement:
 
@@ -42,5 +43,9 @@ def class Measurement:
 
     def get_shared_url(self):
         return read_csv[9]
-    
 
+def load_data(directory_path):
+    file_names = os.listdir(directory_path)
+    file_paths = map(lambda file_name: os.path.join(directory_path, file_name), files)
+    parsed_data = map(lambda file_path: Measurement(file_path))
+    return parsed_data
