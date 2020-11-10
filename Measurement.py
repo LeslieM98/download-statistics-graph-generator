@@ -3,10 +3,10 @@ import os
 
 def class Measurement:
 
-    def __init__(self, filepath):
+    def __init__(self, file_path):
         read_csv = []
 
-        with open(filepath, 'r') as csv_file:
+        with open(file_path, 'r') as csv_file:
             reader = csv.reader(csv_file)
             for row in reader:
                 read_csv.append(row)
