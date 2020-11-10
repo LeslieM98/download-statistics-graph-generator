@@ -15,7 +15,7 @@ def class Measurement:
 
     
     def get_server_Name(self):
-        retrun read_csv[0]
+        return read_csv[0]
 
     def get_server_id(self):
         return read_csv[1]
