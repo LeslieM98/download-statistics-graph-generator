@@ -1,9 +1,19 @@
 import csv
 import os
+from datetime import datetime, date, time
 
 class Measurement:
+    
+    def _parse_date(self, file_name):
+        datetime_string = file_name[:file_name.index('CET')]
+        parsed_date = date.fromisoformat(datetime_string[:datetime_string.index(' ')].strip())
+        parsed_time = time.fromisoformat(datetime_string[datetime_string.index(' '):].strip())
+        return datetime.combine(parsed_date, parsed_time)
+
     def __init__(self, file_path):
         self.read_csv = []
+        self.file_name = os.path.basename(file_path)
+        self.date = self._parse_date(self.file_name)
 
         with open(file_path, 'r') as csv_file:
             reader = csv.reader(csv_file)
@@ -12,8 +22,10 @@ class Measurement:
             self.csv_header = self.read_csv[0]
             self.csv_data = self.read_csv[1]
 
+    def get_datetime(self):
+        return self.date
     
-    def get_server_Name(self):
+    def get_server_name(self):
         return self.csv_data[0]
 
     def get_server_id(self):
@@ -49,6 +61,15 @@ class Measurement:
     def __str__(self):
         return str(self.csv_data)
 
+class MeasurementSet:
+    def __init__(self, measurements):
+        self.data = measurements
+
+    def get_days(self):
+        pass
+
+    def get_all(self):
+        return self.data
 
 def load_data(directory_path):
     file_names = os.listdir(directory_path)
@@ -58,3 +79,6 @@ def load_data(directory_path):
         parsed_csv = Measurement(file_path)
         parsed_csvs.append(parsed_csv)
     return parsed_csvs
+
+def load_data_as_set(directory_path):
+    return MeasurementSet(load_data(directory_path))
