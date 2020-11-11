@@ -66,10 +66,23 @@ class MeasurementSet:
         self.data = measurements
 
     def get_days(self):
-        pass
+        days = {}
+        for measurement in self.data:
+            measurement_date = measurement.get_datetime().date()
+            if not measurement_date in days:
+                days[measurement_date] = []
+            days[measurement_date].append(measurement)
+        return days
 
     def get_all(self):
         return self.data
+
+    def get_as_dict(self, server_name):
+        r = {}
+        for measurement in self.data:
+            if server_name.lower() in measurement.get_server_name().lower():
+                r[measurement.get_datetime()] = measurement
+        return r
 
 def load_data(directory_path):
     file_names = os.listdir(directory_path)
