@@ -1,4 +1,4 @@
 *.sqlite
-.*.idea
+.idea
 /data
 .vscode
