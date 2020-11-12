@@ -3,8 +3,9 @@ import os
 import sqlite3
 from datetime import datetime, date, time
 
+
 class Measurement:
-    
+
     def _parse_date(self, file_name):
         datetime_string = file_name[:file_name.index('CET')]
         parsed_date = date.fromisoformat(datetime_string[:datetime_string.index(' ')].strip())
@@ -25,7 +26,7 @@ class Measurement:
 
     def get_datetime(self):
         return self.date
-    
+
     def get_server_name(self):
         return self.csv_data[0]
 
@@ -62,6 +63,21 @@ class Measurement:
     def __str__(self):
         return str(self.csv_data)
 
+    def as_db_tuple(self):
+        return (self.get_shared_url(),
+                self.get_server_name(),
+                self.get_server_id(),
+                self.get_latency(),
+                self.get_jitter(),
+                self.get_packet_loss(),
+                self.get_download(),
+                self.get_upload(),
+                self.get_download_bytes(),
+                self.get_upload_bytes(),
+                self.get_datetime().date().isoformat(),
+                self.get_datetime().time().isoformat())
+
+
 class MeasurementSet:
     def __init__(self, measurements):
         self.data = measurements
@@ -70,7 +86,7 @@ class MeasurementSet:
         days = {}
         for measurement in self.data:
             measurement_date = measurement.get_datetime().date()
-            if not measurement_date in days:
+            if measurement_date not in days:
                 days[measurement_date] = []
             days[measurement_date].append(measurement)
         return days
@@ -85,6 +101,7 @@ class MeasurementSet:
                 r[measurement.get_datetime()] = measurement
         return r
 
+
 def load_data(directory_path):
     file_names = os.listdir(directory_path)
     parsed_csvs = []
@@ -93,6 +110,7 @@ def load_data(directory_path):
         parsed_csv = Measurement(file_path)
         parsed_csvs.append(parsed_csv)
     return parsed_csvs
+
 
 def create_db(db_name):
     table_sql = '''
@@ -105,14 +123,40 @@ def create_db(db_name):
         packet_loss float NOT NULL,
         download integer NOT NULL,
         upload integer NOT NULL,
-        dowbload_bytes integer NOT NULL,
+        download_bytes integer NOT NULL,
         upload_bytes integer NOT NULL,
-        datetime string NOT NULL
+        date string NOT NULL,
+        time string NOT NULL
     )
     '''
-    cursor = sqlite3.connect(db_name).connection()
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
     cursor.execute(table_sql)
-        
+    conn.commit()
+
+
+def insert_into_db(db_name, data):
+    sql = '''
+    INSERT INTO 
+    measurements(
+        share_url,
+        server_name,
+        server_id,
+        latency,
+        jitter,
+        packet_loss,
+        download,
+        upload,
+        download_bytes,
+        upload_bytes,
+        date,
+        time)
+    VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+    '''
+    conn = sqlite3.connect(db_name)
+    cur = conn.cursor()
+    cur.executemany(sql, data)
+    conn.commit()
 
 
 def load_data_as_set(directory_path):
