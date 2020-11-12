@@ -1,5 +1,6 @@
 import csv
 import os
+import sqlite3
 from datetime import datetime, date, time
 
 class Measurement:
@@ -92,6 +93,27 @@ def load_data(directory_path):
         parsed_csv = Measurement(file_path)
         parsed_csvs.append(parsed_csv)
     return parsed_csvs
+
+def create_db(db_name):
+    table_sql = '''
+    CREATE TABLE IF NOT EXISTS measurements (
+        share_url string PRIMARY KEY,
+        server_name string NOT NULL,
+        server_id integer NOT NULL,
+        latency float NOT NULL, 
+        jitter float NOT NULL,
+        packet_loss float NOT NULL,
+        download integer NOT NULL,
+        upload integer NOT NULL,
+        dowbload_bytes integer NOT NULL,
+        upload_bytes integer NOT NULL,
+        datetime string NOT NULL
+    )
+    '''
+    cursor = sqlite3.connect(db_name).connection()
+    cursor.execute(table_sql)
+        
+
 
 def load_data_as_set(directory_path):
     return MeasurementSet(load_data(directory_path))
