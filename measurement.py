@@ -158,6 +158,13 @@ def insert_into_db(db_name, data):
     cur.executemany(sql, data)
     conn.commit()
 
+def query_db(db_name, sql):
+    conn = sqlite3.connect(db_name)
+    cur = conn.cursor()
+    cur.execute(sql)
+    rows = cur.fetchall()
+    for row in rows:
+        print(row)
 
 def load_data_as_set(directory_path):
     return MeasurementSet(load_data(directory_path))
