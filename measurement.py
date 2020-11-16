@@ -162,9 +162,16 @@ def query_db(db_name, sql):
     conn = sqlite3.connect(db_name)
     cur = conn.cursor()
     cur.execute(sql)
-    rows = cur.fetchall()
-    for row in rows:
-        print(row)
+    results = cur.fetchall()
+    return results
+
+def db_get_all_servers(db_name):
+    results = query_db(db_name, "SELECT DISTINCT server_name FROM measurements")
+    return results
+
+def db_get_all_dates(db_name):
+    results = query_db(db_name, "SELECT DISTINCT date FROM measurements")
+    return results
 
 def load_data_as_set(directory_path):
     return MeasurementSet(load_data(directory_path))
