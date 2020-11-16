@@ -172,6 +172,10 @@ def db_get_all_servers(db_name):
 def db_get_all_dates(db_name):
     results = query_db(db_name, "SELECT DISTINCT date FROM measurements")
     return results
+def get_all_with_server_name_and_date(db_name, server_name, date):
+    results = query_db(db_name, 'SELECT * FROM measurements WHERE server_name LIKE \'%%%s%%\' AND date LIKE \'%%%s%%\' ORDER BY time ASC'%(server_name, date))
+    return results
+
 
 def load_data_as_set(directory_path):
     return MeasurementSet(load_data(directory_path))
