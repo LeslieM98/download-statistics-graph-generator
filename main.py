@@ -1,31 +1,22 @@
-from measurement import load_data, Measurement, load_data_as_set
+import measurement
 import sys
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas
 
+def generate_filename(date, server_name):
+    return f'{server_name}_{date}'.replace(' ', '_')
+
 def main(argv):
-    measurement_set = load_data_as_set(argv[1])
-    plot_total_downloadspeed(measurement_set)
-
-def plot_total_downloadspeed(measurement_set):
-    measurements = measurement_set.get_as_dict('inexio')
-    x = []
-    y = []
-    for key in measurements.keys():
-        date = matplotlib.dates.date2num(key)
-        x.append(date)
-    for value in measurements.values():
-        y.append(value.get_download())
-    df = pandas.DataFrame({'x': x, 'y': y})
-    plt.plot('y', 'x', data=df, color='skyblue')
-
-
-
-    plt.show()
-    
-        
+    db_name = "tmp.sqlite"
+    measurement.create_db(db_name)
+    measurements = measurement.load_data_as_set(argv[1])
+    data = map(lambda x: x.as_db_tuple(), measurements.get_all())
+    # measurement.insert_into_db(db_name, data)
+    # measurement.query_db(db_name, "SELECT * FROM measurements WHERE date = '2020-11-04' AND server_name like '%%inexio%%' ")
+    results = measurement.db_get_all_servers(db_name)
+    print(generate_filename('2020-11-16', 'inexio Saar'))
 
 if __name__ == "__main__":
     main(sys.argv)
