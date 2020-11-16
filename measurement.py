@@ -6,23 +6,47 @@ from datetime import datetime, date, time
 
 class Measurement:
 
-    def _parse_date(self, file_name):
+    def _parse_date(file_name):
         datetime_string = file_name[:file_name.index('CET')]
         parsed_date = date.fromisoformat(datetime_string[:datetime_string.index(' ')].strip())
         parsed_time = time.fromisoformat(datetime_string[datetime_string.index(' '):].strip())
         return datetime.combine(parsed_date, parsed_time)
 
-    def __init__(self, file_path):
+    def __init__(self, csv_header, csv_data, date):
         self.read_csv = []
-        self.file_name = os.path.basename(file_path)
-        self.date = self._parse_date(self.file_name)
+        self.read_csv.append(csv_header)
+        self.read_csv.append(csv_data)
+        self.file_name = None
+        self.date = date
+        self.csv_header = csv_header
+        self.csv_data = csv_data
+
+    def from_file(file_path):
+        read_csv = []
+        file_name = os.path.basename(file_path)
+        date = Measurement._parse_date(file_name)
 
         with open(file_path, 'r') as csv_file:
             reader = csv.reader(csv_file)
             for row in reader:
-                self.read_csv.append(row)
-            self.csv_header = self.read_csv[0]
-            self.csv_data = self.read_csv[1]
+                read_csv.append(row)
+            csv_header = read_csv[0]
+            csv_data = read_csv[1]
+        return Measurement(csv_header, csv_data, date)
+
+    def from_tuple(tuple):
+        (share_url, server_name, server_id,latency,jitter,packet_loss,download,upload,download_bytes,upload_bytes,date_,time_) = tuple
+
+        csv_header = ["server name","server id","latency","jitter","packet loss","download","upload","download bytes","upload bytes","share url"]
+        csv_data = [share_url,server_name,server_id,latency,jitter,packet_loss,download,upload,download_bytes,upload_bytes]
+        date_parsed = date.fromisoformat(date_)
+        time_parsed = time.fromisoformat(time_)
+        datetime_parsed = datetime.combine(date_parsed, time_parsed)
+
+        return Measurement(csv_header, csv_data, datetime_parsed)
+
+
+
 
     def get_datetime(self):
         return self.date
@@ -107,7 +131,7 @@ def load_data(directory_path):
     parsed_csvs = []
     for file_name in file_names:
         file_path = os.path.join(directory_path, file_name)
-        parsed_csv = Measurement(file_path)
+        parsed_csv = Measurement.from_file(file_path)
         parsed_csvs.append(parsed_csv)
     return parsed_csvs
 
