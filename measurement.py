@@ -38,15 +38,12 @@ class Measurement:
         (share_url, server_name, server_id,latency,jitter,packet_loss,download,upload,download_bytes,upload_bytes,date_,time_) = tuple
 
         csv_header = ["server name","server id","latency","jitter","packet loss","download","upload","download bytes","upload bytes","share url"]
-        csv_data = [share_url,server_name,server_id,latency,jitter,packet_loss,download,upload,download_bytes,upload_bytes]
+        csv_data = [server_name,server_id,latency,jitter,packet_loss,download,upload,download_bytes,upload_bytes, share_url]
         date_parsed = date.fromisoformat(date_)
         time_parsed = time.fromisoformat(time_)
         datetime_parsed = datetime.combine(date_parsed, time_parsed)
 
         return Measurement(csv_header, csv_data, datetime_parsed)
-
-
-
 
     def get_datetime(self):
         return self.date
@@ -196,8 +193,11 @@ def db_get_all_servers(db_name):
 def db_get_all_dates(db_name):
     results = query_db(db_name, "SELECT DISTINCT date FROM measurements")
     return results
+
 def get_all_with_server_name_and_date(db_name, server_name, date):
-    results = query_db(db_name, 'SELECT * FROM measurements WHERE server_name LIKE \'%%%s%%\' AND date LIKE \'%%%s%%\' ORDER BY time ASC'%(server_name, date))
+    server_unpacked = server_name[0]
+    date_unpacked = date[0]
+    results = query_db(db_name, 'SELECT * FROM measurements WHERE server_name LIKE \'%%%s%%\' AND date LIKE \'%%%s%%\' ORDER BY time ASC'%(server_unpacked, date_unpacked))
     return results
 
 
